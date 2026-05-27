@@ -52,3 +52,12 @@ export async function getAllMembers(): Promise<StoredUser[]> {
 export async function setCoreMember(id: string, value: boolean): Promise<void> {
   await db.update(users).set({ isCoreMember: value }).where(eq(users.id, id))
 }
+
+type AdminEditFields = Partial<
+  Pick<StoredUser, 'name' | 'phone' | 'gender' | 'dateOfBirth' | 'bio' | 'role' | 'isCoreMember'>
+>
+
+export async function updateMemberByAdmin(id: string, data: AdminEditFields): Promise<void> {
+  if (Object.keys(data).length === 0) return
+  await db.update(users).set(data).where(eq(users.id, id))
+}

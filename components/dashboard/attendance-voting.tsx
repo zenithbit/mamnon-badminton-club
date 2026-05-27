@@ -248,7 +248,7 @@ function SessionRow({
 }) {
   const [voters, setVoters] = useState<SessionVoter[]>(session.voters)
   const [guests, setGuests] = useState<GuestEntry[]>(session.guests)
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(isNext)
   const [modalOpen, setModalOpen] = useState(false)
   const [feeModalOpen, setFeeModalOpen] = useState(false)
 
@@ -422,7 +422,7 @@ function SessionRow({
                           {voter.id === currentUser.id && (
                             <button
                               onClick={() => handleRemoveVote(voter.id)}
-                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
+                              className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
                               aria-label="Xóa"
                             >
                               <X size={10} />
@@ -442,7 +442,7 @@ function SessionRow({
                           {(!g.addedBy || g.addedBy === currentUser.id) && (
                             <button
                               onClick={() => handleRemoveGuest(g.id)}
-                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
+                              className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
                               aria-label="Xóa"
                             >
                               <X size={10} />
@@ -472,7 +472,7 @@ function SessionRow({
                         {voter.id === currentUser.id && (
                           <button
                             onClick={() => handleRemoveVote(voter.id)}
-                            className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
+                            className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
                             aria-label="Xóa"
                           >
                             <X size={10} />
@@ -501,7 +501,7 @@ function SessionRow({
                     {voter.id === currentUser.id && (
                       <button
                         onClick={() => handleRemoveVote(voter.id)}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
+                        className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
                         aria-label="Xóa điểm danh"
                       >
                         <X size={12} />
@@ -529,7 +529,7 @@ function SessionRow({
                   {(!g.addedBy || g.addedBy === currentUser.id) && (
                     <button
                       onClick={() => handleRemoveGuest(g.id)}
-                      className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
+                      className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
                       aria-label="Xóa điểm danh hộ"
                     >
                       <X size={12} />
