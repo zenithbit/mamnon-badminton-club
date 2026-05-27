@@ -337,15 +337,16 @@ function SessionRow({
             {/* sm+: action buttons */}
             {isNext && (
               <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+                {hasVoted && (
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium bg-green-600/10 text-green-400 border border-green-600/20">
+                    <Check size={11} />Đã điểm danh
+                  </span>
+                )}
                 <button
                   onClick={() => setModalOpen(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    hasVoted
-                      ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
-                  }`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-all"
                 >
-                  {hasVoted ? <><Check size={12} />Đã đăng ký</> : <><UserCheck size={12} />Điểm danh</>}
+                  <UserCheck size={12} />Điểm danh
                 </button>
                 <button
                   onClick={() => setFeeModalOpen(true)}
@@ -371,15 +372,16 @@ function SessionRow({
           {/* Mobile-only buttons row */}
           {isNext && (
             <div className="flex sm:hidden items-center gap-1.5 mt-2 pb-1">
+              {hasVoted && (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium bg-green-600/10 text-green-400 border border-green-600/20">
+                  <Check size={11} />Đã điểm danh
+                </span>
+              )}
               <button
                 onClick={() => setModalOpen(true)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  hasVoted
-                    ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-all"
               >
-                {hasVoted ? <><Check size={12} />Đã đăng ký</> : <><UserCheck size={12} />Điểm danh</>}
+                <UserCheck size={12} />Điểm danh
               </button>
               <button
                 onClick={() => setFeeModalOpen(true)}
