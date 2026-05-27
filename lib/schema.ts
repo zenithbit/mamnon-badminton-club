@@ -1,4 +1,4 @@
-import { pgTable, text, uuid, timestamp, date, smallint, unique } from 'drizzle-orm/pg-core'
+import { pgTable, text, uuid, timestamp, date, smallint, unique, boolean } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -12,6 +12,7 @@ export const users = pgTable('users', {
   dateOfBirth: date('date_of_birth'),
   bio: text('bio'),
   avatarUrl: text('avatar_url'),
+  isCoreMember: boolean('is_core_member').notNull().default(false),
 })
 
 export const attendanceVotes = pgTable(

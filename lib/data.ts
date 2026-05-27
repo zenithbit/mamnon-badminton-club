@@ -60,6 +60,7 @@ export async function getAttendanceSessions(): Promise<AttendanceSession[]> {
         userName: users.name,
         avatarUrl: users.avatarUrl,
         gender: users.gender,
+        isCoreMember: users.isCoreMember,
       })
       .from(attendanceVotes)
       .innerJoin(users, eq(attendanceVotes.userId, users.id))
@@ -82,6 +83,7 @@ export async function getAttendanceSessions(): Promise<AttendanceSession[]> {
         color: getUserColor(v.userId),
         avatarUrl: v.avatarUrl ?? undefined,
         gender: v.gender,
+        isCoreMember: v.isCoreMember,
       })),
     guests: guests
       .filter((g) => g.sessionDate === session.date)

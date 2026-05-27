@@ -127,10 +127,10 @@ function FeeCalculatorModal({
   guests: GuestEntry[]
   onClose: () => void
 }) {
-  const initGuestMale = guests.filter((g) => g.gender === 'male').reduce((s, g) => s + g.count, 0)
-  const initGuestFemale = guests.filter((g) => g.gender === 'female').reduce((s, g) => s + g.count, 0)
-  const initFixedMale = voters.filter((v) => v.gender === 'male').length
-  const initFixedFemale = voters.filter((v) => v.gender === 'female').length
+  const initFixedMale = voters.filter((v) => v.isCoreMember && v.gender === 'male').length
+  const initFixedFemale = voters.filter((v) => v.isCoreMember && v.gender === 'female').length
+  const initGuestMale = voters.filter((v) => !v.isCoreMember && v.gender === 'male').length + guests.filter((g) => g.gender === 'male').reduce((s, g) => s + g.count, 0)
+  const initGuestFemale = voters.filter((v) => !v.isCoreMember && v.gender === 'female').length + guests.filter((g) => g.gender === 'female').reduce((s, g) => s + g.count, 0)
 
   const [courts, setCourts] = useState('2')
   const [courtPrice, setCourtPrice] = useState('240')
@@ -387,10 +387,10 @@ function SessionRow({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(
                   [
-                    { key: 'fixedMale',   label: 'Nam CĐ',  color: 'text-blue-400',  voters: voters.filter((v) => v.gender === 'male'),   guests: [] },
-                    { key: 'fixedFemale', label: 'Nữ CĐ',   color: 'text-pink-400',  voters: voters.filter((v) => v.gender === 'female'),  guests: [] },
-                    { key: 'guestMale',   label: 'Nam GL',  color: 'text-blue-300',  voters: [],                                           guests: guests.filter((g) => g.gender === 'male') },
-                    { key: 'guestFemale', label: 'Nữ GL',   color: 'text-pink-300',  voters: [],                                           guests: guests.filter((g) => g.gender === 'female') },
+                    { key: 'fixedMale',   label: 'Nam CĐ',  color: 'text-blue-400',  voters: voters.filter((v) => v.isCoreMember && v.gender === 'male'),                                                                              guests: [] },
+                    { key: 'fixedFemale', label: 'Nữ CĐ',   color: 'text-pink-400',  voters: voters.filter((v) => v.isCoreMember && v.gender === 'female'),                                                                             guests: [] },
+                    { key: 'guestMale',   label: 'Nam GL',  color: 'text-blue-300',  voters: voters.filter((v) => !v.isCoreMember && v.gender === 'male'),   guests: guests.filter((g) => g.gender === 'male') },
+                    { key: 'guestFemale', label: 'Nữ GL',   color: 'text-pink-300',  voters: voters.filter((v) => !v.isCoreMember && v.gender === 'female'),  guests: guests.filter((g) => g.gender === 'female') },
                   ] as const
                 ).map((col) => (
                   <div key={col.key}>

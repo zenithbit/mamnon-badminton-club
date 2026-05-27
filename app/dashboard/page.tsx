@@ -33,6 +33,7 @@ export default async function DashboardPage() {
     color: getUserColor(session.userId),
     avatarUrl: user.avatarUrl ?? undefined,
     gender: user.gender,
+    isCoreMember: user.isCoreMember,
   }
 
   return (

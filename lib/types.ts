@@ -5,6 +5,7 @@ export interface SessionVoter {
   color: string
   avatarUrl?: string
   gender?: string | null
+  isCoreMember: boolean
 }
 
 export type Gender = 'male' | 'female'
