@@ -384,7 +384,7 @@ function SessionRow({
           isNext ? (
             /* 4-column layout for today's session */
             <div className="px-4 pb-3">
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(
                   [
                     { key: 'fixedMale',   label: 'Nam CĐ',  color: 'text-blue-400',  voters: voters.filter((v) => v.gender === 'male'),   guests: [] },
