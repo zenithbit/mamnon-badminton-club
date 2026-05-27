@@ -255,6 +255,8 @@ function SessionRow({
   const hasVoted = voters.some((v) => v.id === currentUser.id)
   const totalGuests = guests.reduce((sum, g) => sum + g.count, 0)
   const totalCount = voters.length + totalGuests
+  const totalMale = voters.filter((v) => v.gender === 'male').length + guests.filter((g) => g.gender === 'male').reduce((s, g) => s + g.count, 0)
+  const totalFemale = voters.filter((v) => v.gender === 'female').length + guests.filter((g) => g.gender === 'female').reduce((s, g) => s + g.count, 0)
 
   async function handleSelfVote() {
     if (!hasVoted) {
@@ -316,7 +318,10 @@ function SessionRow({
             <div className="flex items-center gap-2 mt-1">
               <Users size={12} className="text-gray-500 shrink-0" />
               <span className="text-xs text-gray-400">
-                {totalCount} người{isPast ? ' tham gia' : ' đã đăng ký'}
+                {isNext
+                  ? <>{totalMale} nam, {totalFemale} nữ đã đăng ký</>
+                  : <>{totalCount} người{isPast ? ' tham gia' : ' đã đăng ký'}</>
+                }
               </span>
             </div>
           </div>
@@ -376,59 +381,150 @@ function SessionRow({
 
         {/* Expanded list */}
         {expanded && hasAny && (
-          <div className="px-4 pb-3 flex flex-col gap-1.5">
-            <ul className="grid grid-cols-2 gap-1.5">
-              {voters.map((voter) => (
-                <li
-                  key={voter.id}
+          isNext ? (
+            /* 4-column layout for today's session */
+            <div className="px-4 pb-3">
+              <div className="grid grid-cols-4 gap-2">
+                {(
+                  [
+                    { key: 'fixedMale',   label: 'Nam CĐ',  color: 'text-blue-400',  voters: voters.filter((v) => v.gender === 'male'),   guests: [] },
+                    { key: 'fixedFemale', label: 'Nữ CĐ',   color: 'text-pink-400',  voters: voters.filter((v) => v.gender === 'female'),  guests: [] },
+                    { key: 'guestMale',   label: 'Nam GL',  color: 'text-blue-300',  voters: [],                                           guests: guests.filter((g) => g.gender === 'male') },
+                    { key: 'guestFemale', label: 'Nữ GL',   color: 'text-pink-300',  voters: [],                                           guests: guests.filter((g) => g.gender === 'female') },
+                  ] as const
+                ).map((col) => (
+                  <div key={col.key}>
+                    <p className={`text-[10px] font-semibold uppercase tracking-wider mb-1.5 ${col.color}`}>
+                      {col.label}
+                    </p>
+                    <ul className="space-y-1">
+                      {col.voters.map((voter) => (
+                        <li
+                          key={voter.id}
+                          className="flex items-center gap-1.5 bg-[#1a2035] rounded-lg px-2 py-1.5 group"
+                        >
+                          <VoterAvatar voter={voter} className="w-5 h-5 text-[9px] shrink-0" />
+                          <span className="text-[11px] text-gray-300 truncate flex-1 min-w-0">{voter.name}</span>
+                          {voter.id === currentUser.id && (
+                            <button
+                              onClick={() => handleRemoveVote(voter.id)}
+                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
+                              aria-label="Xóa"
+                            >
+                              <X size={10} />
+                            </button>
+                          )}
+                        </li>
+                      ))}
+                      {col.guests.map((g) => (
+                        <li
+                          key={g.id}
+                          className="flex items-center gap-1.5 bg-[#1a2035] rounded-lg px-2 py-1.5 group"
+                        >
+                          <span className="text-[11px] text-gray-300 flex-1">
+                            {g.count} người
+                            <span className="text-gray-500"> · {adderLabel(g.addedBy, voters, currentUser)}</span>
+                          </span>
+                          {(!g.addedBy || g.addedBy === currentUser.id) && (
+                            <button
+                              onClick={() => handleRemoveGuest(g.id)}
+                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
+                              aria-label="Xóa"
+                            >
+                              <X size={10} />
+                            </button>
+                          )}
+                        </li>
+                      ))}
+                      {col.voters.length === 0 && col.guests.length === 0 && (
+                        <li className="text-[11px] text-gray-600 px-2 py-1">—</li>
+                      )}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+
+              {/* Voters without gender */}
+              {voters.filter((v) => !v.gender).length > 0 && (
+                <div className="mt-2 pt-2 border-t border-white/5">
+                  <ul className="grid grid-cols-2 gap-1">
+                    {voters.filter((v) => !v.gender).map((voter) => (
+                      <li
+                        key={voter.id}
+                        className="flex items-center gap-1.5 bg-[#1a2035] rounded-lg px-2 py-1.5 group"
+                      >
+                        <VoterAvatar voter={voter} className="w-5 h-5 text-[9px] shrink-0" />
+                        <span className="text-[11px] text-gray-400 truncate flex-1 min-w-0">{voter.name}</span>
+                        {voter.id === currentUser.id && (
+                          <button
+                            onClick={() => handleRemoveVote(voter.id)}
+                            className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
+                            aria-label="Xóa"
+                          >
+                            <X size={10} />
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Default layout for past/future sessions */
+            <div className="px-4 pb-3 flex flex-col gap-1.5">
+              <ul className="grid grid-cols-2 gap-1.5">
+                {voters.map((voter) => (
+                  <li
+                    key={voter.id}
+                    className="flex items-center gap-2 bg-[#1a2035] rounded-lg px-2.5 py-1.5 group"
+                  >
+                    <VoterAvatar voter={voter} className="w-6 h-6 text-[10px]" />
+                    <span className="text-xs text-gray-300 truncate flex-1">{voter.name}</span>
+                    {voter.id === currentUser.id && (
+                      <span className="text-[10px] text-blue-400 shrink-0">(bạn)</span>
+                    )}
+                    {voter.id === currentUser.id && (
+                      <button
+                        onClick={() => handleRemoveVote(voter.id)}
+                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
+                        aria-label="Xóa điểm danh"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              {guests.map((g) => (
+                <div
+                  key={g.id}
                   className="flex items-center gap-2 bg-[#1a2035] rounded-lg px-2.5 py-1.5 group"
                 >
-                  <VoterAvatar voter={voter} className="w-6 h-6 text-[10px]" />
-                  <span className="text-xs text-gray-300 truncate flex-1">{voter.name}</span>
-                  {voter.id === currentUser.id && (
-                    <span className="text-[10px] text-blue-400 shrink-0">(bạn)</span>
-                  )}
-                  {voter.id === currentUser.id && (
+                  <div
+                    className={`flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white shrink-0 ${
+                      g.gender === 'male' ? 'bg-blue-600' : 'bg-pink-600'
+                    }`}
+                  >
+                    {g.gender === 'male' ? '♂' : '♀'}
+                  </div>
+                  <span className="text-xs text-gray-300 flex-1">
+                    {g.count} {g.gender === 'male' ? 'nam' : 'nữ'}{' '}
+                    (của {adderLabel(g.addedBy, voters, currentUser)})
+                  </span>
+                  {(!g.addedBy || g.addedBy === currentUser.id) && (
                     <button
-                      onClick={() => handleRemoveVote(voter.id)}
+                      onClick={() => handleRemoveGuest(g.id)}
                       className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
-                      aria-label="Xóa điểm danh"
+                      aria-label="Xóa điểm danh hộ"
                     >
                       <X size={12} />
                     </button>
                   )}
-                </li>
-              ))}
-            </ul>
-
-            {guests.map((g) => (
-              <div
-                key={g.id}
-                className="flex items-center gap-2 bg-[#1a2035] rounded-lg px-2.5 py-1.5 group"
-              >
-                <div
-                  className={`flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white shrink-0 ${
-                    g.gender === 'male' ? 'bg-blue-600' : 'bg-pink-600'
-                  }`}
-                >
-                  {g.gender === 'male' ? '♂' : '♀'}
                 </div>
-                <span className="text-xs text-gray-300 flex-1">
-                  {g.count} {g.gender === 'male' ? 'nam' : 'nữ'}{' '}
-                  (của {adderLabel(g.addedBy, voters, currentUser)})
-                </span>
-                {(!g.addedBy || g.addedBy === currentUser.id) && (
-                  <button
-                    onClick={() => handleRemoveGuest(g.id)}
-                    className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
-                    aria-label="Xóa điểm danh hộ"
-                  >
-                    <X size={12} />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )
         )}
       </li>
 
