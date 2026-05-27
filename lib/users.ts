@@ -1,5 +1,5 @@
 import 'server-only'
-import { eq } from 'drizzle-orm'
+import { eq, count } from 'drizzle-orm'
 import { db } from './db'
 import { users } from './schema'
 
@@ -15,10 +15,19 @@ export async function findUserById(id: string): Promise<StoredUser | undefined> 
   return rows[0]
 }
 
+export async function countUsersByIp(ip: string): Promise<number> {
+  const [row] = await db
+    .select({ value: count() })
+    .from(users)
+    .where(eq(users.registrationIp, ip))
+  return row?.value ?? 0
+}
+
 export async function createUser(data: {
   name: string
   email: string
   passwordHash: string
+  registrationIp?: string
 }): Promise<StoredUser> {
   const [anyUser] = await db.select({ id: users.id }).from(users).limit(1)
   const [user] = await db
@@ -28,6 +37,7 @@ export async function createUser(data: {
       email: data.email.toLowerCase(),
       passwordHash: data.passwordHash,
       role: anyUser ? 'member' : 'admin',
+      registrationIp: data.registrationIp,
     })
     .returning()
   return user

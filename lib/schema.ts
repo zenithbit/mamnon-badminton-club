@@ -13,6 +13,7 @@ export const users = pgTable('users', {
   bio: text('bio'),
   avatarUrl: text('avatar_url'),
   isCoreMember: boolean('is_core_member').notNull().default(false),
+  registrationIp: text('registration_ip'),
 })
 
 export const attendanceVotes = pgTable(

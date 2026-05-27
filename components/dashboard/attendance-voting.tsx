@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Calculator, Check, ChevronDown, ChevronUp, UserCheck, Users, X } from 'lucide-react'
 import type { AttendanceSession, SessionVoter, GuestEntry } from '@/lib/types'
 import AttendanceModal from './attendance-modal'
@@ -13,7 +14,7 @@ import {
 
 interface Props {
   sessions: AttendanceSession[]
-  currentUser: SessionVoter
+  currentUser: SessionVoter | null
 }
 
 function VoterAvatar({
@@ -77,10 +78,10 @@ function AvatarStack({ voters, max = 5 }: { voters: SessionVoter[]; max?: number
 function adderLabel(
   addedBy: string | undefined,
   voters: SessionVoter[],
-  currentUser: SessionVoter,
+  currentUser: SessionVoter | null,
 ): string {
   if (!addedBy) return 'thành viên'
-  if (addedBy === currentUser.id) return currentUser.name
+  if (currentUser && addedBy === currentUser.id) return currentUser.name
   return voters.find((v) => v.id === addedBy)?.name ?? 'thành viên'
 }
 
@@ -244,28 +245,37 @@ function SessionRow({
 }: {
   session: AttendanceSession
   isNext: boolean
-  currentUser: SessionVoter
+  currentUser: SessionVoter | null
 }) {
+  const router = useRouter()
   const [voters, setVoters] = useState<SessionVoter[]>(session.voters)
   const [guests, setGuests] = useState<GuestEntry[]>(session.guests)
   const [expanded, setExpanded] = useState(isNext)
   const [modalOpen, setModalOpen] = useState(false)
   const [feeModalOpen, setFeeModalOpen] = useState(false)
 
-  const hasVoted = voters.some((v) => v.id === currentUser.id)
+  const hasVoted = currentUser ? voters.some((v) => v.id === currentUser.id) : false
   const totalGuests = guests.reduce((sum, g) => sum + g.count, 0)
   const totalCount = voters.length + totalGuests
   const totalMale = voters.filter((v) => v.gender === 'male').length + guests.filter((g) => g.gender === 'male').reduce((s, g) => s + g.count, 0)
   const totalFemale = voters.filter((v) => v.gender === 'female').length + guests.filter((g) => g.gender === 'female').reduce((s, g) => s + g.count, 0)
 
-  async function handleSelfVote() {
-    if (!hasVoted) {
-      setVoters((prev) => [...prev, currentUser])
-      await voteForSession(session.date)
+  function handleAttendanceClick() {
+    if (!currentUser) {
+      router.push('/login')
+      return
     }
+    setModalOpen(true)
+  }
+
+  async function handleSelfVote() {
+    if (!currentUser || hasVoted) return
+    setVoters((prev) => [...prev, currentUser])
+    await voteForSession(session.date)
   }
 
   async function handleGuestVote(newGuests: GuestEntry[]) {
+    if (!currentUser) return
     for (const ng of newGuests) {
       const dbId = await addGuest(session.date, ng.gender, ng.count)
       setGuests((prev) => [
@@ -343,7 +353,7 @@ function SessionRow({
                   </span>
                 )}
                 <button
-                  onClick={() => setModalOpen(true)}
+                  onClick={handleAttendanceClick}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-all"
                 >
                   <UserCheck size={12} />Điểm danh
@@ -419,7 +429,7 @@ function SessionRow({
                         >
                           <VoterAvatar voter={voter} className="w-5 h-5 text-[9px] shrink-0" />
                           <span className="text-[11px] text-gray-300 truncate flex-1 min-w-0">{voter.name}</span>
-                          {voter.id === currentUser.id && (
+                          {currentUser && voter.id === currentUser.id && (
                             <button
                               onClick={() => handleRemoveVote(voter.id)}
                               className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
@@ -439,7 +449,7 @@ function SessionRow({
                             {g.count} người
                             <span className="text-gray-500"> · {adderLabel(g.addedBy, voters, currentUser)}</span>
                           </span>
-                          {(!g.addedBy || g.addedBy === currentUser.id) && (
+                          {currentUser && (!g.addedBy || g.addedBy === currentUser.id) && (
                             <button
                               onClick={() => handleRemoveGuest(g.id)}
                               className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
@@ -469,7 +479,7 @@ function SessionRow({
                       >
                         <VoterAvatar voter={voter} className="w-5 h-5 text-[9px] shrink-0" />
                         <span className="text-[11px] text-gray-400 truncate flex-1 min-w-0">{voter.name}</span>
-                        {voter.id === currentUser.id && (
+                        {currentUser && voter.id === currentUser.id && (
                           <button
                             onClick={() => handleRemoveVote(voter.id)}
                             className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
@@ -495,10 +505,10 @@ function SessionRow({
                   >
                     <VoterAvatar voter={voter} className="w-6 h-6 text-[10px]" />
                     <span className="text-xs text-gray-300 truncate flex-1">{voter.name}</span>
-                    {voter.id === currentUser.id && (
+                    {currentUser && voter.id === currentUser.id && (
                       <span className="text-[10px] text-blue-400 shrink-0">(bạn)</span>
                     )}
-                    {voter.id === currentUser.id && (
+                    {currentUser && voter.id === currentUser.id && (
                       <button
                         onClick={() => handleRemoveVote(voter.id)}
                         className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
@@ -526,7 +536,7 @@ function SessionRow({
                     {g.count} {g.gender === 'male' ? 'nam' : 'nữ'}{' '}
                     (của {adderLabel(g.addedBy, voters, currentUser)})
                   </span>
-                  {(!g.addedBy || g.addedBy === currentUser.id) && (
+                  {currentUser && (!g.addedBy || g.addedBy === currentUser.id) && (
                     <button
                       onClick={() => handleRemoveGuest(g.id)}
                       className="p-0.5 rounded text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all shrink-0"
@@ -542,7 +552,7 @@ function SessionRow({
         )}
       </li>
 
-      {modalOpen && (
+      {modalOpen && currentUser && (
         <AttendanceModal
           sessionLabel={session.label}
           hasSelfVoted={hasVoted}
@@ -565,6 +575,7 @@ function SessionRow({
 }
 
 export default function AttendanceVoting({ sessions, currentUser }: Props) {
+  // currentUser is null when user is not logged in — voting buttons redirect to /login
   const nextSession = sessions.find((s) => !s.isPast)
   const nextVoters = nextSession?.voters ?? []
   const nextGuests = nextSession?.guests ?? []

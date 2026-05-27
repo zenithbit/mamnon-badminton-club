@@ -16,9 +16,7 @@ export default async function MembersPage() {
   return (
     <>
       <TopBar
-        userName={session.name}
-        userRole={session.role}
-        avatarUrl={user.avatarUrl ?? undefined}
+        user={{ name: session.name, role: session.role, avatarUrl: user.avatarUrl ?? undefined }}
       />
 
       <main className="flex-1 overflow-auto px-4 sm:px-6 py-5">

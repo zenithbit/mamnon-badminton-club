@@ -2,13 +2,11 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Search, Bell, LogOut } from 'lucide-react'
+import { Search, Bell, LogOut, LogIn } from 'lucide-react'
 import { logout } from '@/app/actions/auth'
 
 interface Props {
-  userName: string
-  userRole: 'admin' | 'member'
-  avatarUrl?: string | null
+  user: { name: string; role: 'admin' | 'member'; avatarUrl?: string } | null
 }
 
 function initials(name: string) {
@@ -20,7 +18,7 @@ function initials(name: string) {
     .toUpperCase()
 }
 
-export default function TopBar({ userName, userRole, avatarUrl }: Props) {
+export default function TopBar({ user }: Props) {
   return (
     <header className="flex items-center justify-between pl-14 pr-4 py-4 lg:px-6 border-b border-white/5 shrink-0">
       <h1 className="text-xl font-bold text-white">Dashboard</h1>
@@ -49,49 +47,58 @@ export default function TopBar({ userName, userRole, avatarUrl }: Props) {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true" />
         </button>
 
-        {/* Avatar + name → links to profile */}
-        <div className="flex items-center gap-2.5 pl-2 border-l border-white/10">
-          <Link
-            href="/dashboard/profile"
-            className="flex items-center gap-2 rounded-lg hover:bg-white/5 px-2 py-1 transition-colors"
-            aria-label="Xem hồ sơ"
-          >
-            {/* Avatar */}
-            <div className="w-8 h-8 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center text-xs font-bold text-white shrink-0 ring-2 ring-white/10">
-              {avatarUrl ? (
-                <Image
-                  src={avatarUrl}
-                  alt={userName}
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-cover"
-                  unoptimized
-                />
-              ) : (
-                initials(userName)
-              )}
-            </div>
-
-            <div className="hidden sm:block text-left">
-              <p className="text-xs font-medium text-white leading-tight">{userName}</p>
-              <p className="text-[10px] text-gray-500 capitalize">
-                {userRole === 'admin' ? 'Quản trị viên' : 'Thành viên'}
-              </p>
-            </div>
-          </Link>
-
-          {/* Logout */}
-          <form action={logout}>
-            <button
-              type="submit"
-              className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-              aria-label="Đăng xuất"
-              title="Đăng xuất"
+        {user ? (
+          <div className="flex items-center gap-2.5 pl-2 border-l border-white/10">
+            <Link
+              href="/dashboard/profile"
+              className="flex items-center gap-2 rounded-lg hover:bg-white/5 px-2 py-1 transition-colors"
+              aria-label="Xem hồ sơ"
             >
-              <LogOut size={15} />
-            </button>
-          </form>
-        </div>
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center text-xs font-bold text-white shrink-0 ring-2 ring-white/10">
+                {user.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.name}
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  initials(user.name)
+                )}
+              </div>
+
+              <div className="hidden sm:block text-left">
+                <p className="text-xs font-medium text-white leading-tight">{user.name}</p>
+                <p className="text-[10px] text-gray-500 capitalize">
+                  {user.role === 'admin' ? 'Quản trị viên' : 'Thành viên'}
+                </p>
+              </div>
+            </Link>
+
+            <form action={logout}>
+              <button
+                type="submit"
+                className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                aria-label="Đăng xuất"
+                title="Đăng xuất"
+              >
+                <LogOut size={15} />
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="pl-2 border-l border-white/10">
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
+              <LogIn size={14} />
+              Đăng nhập
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   )
