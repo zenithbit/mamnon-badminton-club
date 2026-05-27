@@ -574,25 +574,29 @@ export default function AttendanceVoting({ sessions, currentUser }: Props) {
 
   return (
     <section className="flex flex-col bg-[#161c2d] rounded-xl overflow-hidden lg:h-full">
-      <div className="flex items-start justify-between px-4 py-3 border-b border-white/5 shrink-0">
-        <div>
-          <h2 className="text-sm font-semibold text-white">
-            Điểm danh hàng tuần
-            <span className="ml-2 px-2 py-0.5 text-[10px] font-medium bg-blue-600/20 text-blue-400 rounded-full">
+      <div className="px-4 py-3 border-b border-white/5 shrink-0">
+        {/* Row 1: title + vote count */}
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold text-white flex items-center gap-1.5 min-w-0">
+            <span className="truncate">Điểm danh hàng tuần</span>
+            <span className="px-2 py-0.5 text-[10px] font-medium bg-blue-600/20 text-blue-400 rounded-full shrink-0">
               Thứ 3
             </span>
           </h2>
-          <p className="text-[11px] text-gray-500 mt-0.5">
-            Lịch điểm danh mỗi thứ 3 hàng tuần · Buổi tới:{' '}
-            <span className="text-gray-300">{nextSession?.label ?? '—'}</span>
-          </p>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-base font-bold text-white">{totalVotes}</span>
+            <span className="text-[11px] text-gray-500">vote</span>
+          </div>
         </div>
 
-        <div className="text-right shrink-0">
-          <p className="text-xl font-bold text-white">{totalVotes} vote</p>
-          <p className="text-[10px] text-gray-500 mt-0.5">
+        {/* Row 2: subtitle + breakdown */}
+        <div className="flex items-center justify-between gap-2 mt-1">
+          <p className="text-[11px] text-gray-500 min-w-0 truncate">
+            Buổi tới: <span className="text-gray-300">{nextSession?.label ?? '—'}</span>
+          </p>
+          <p className="text-[11px] shrink-0">
             <span className="text-blue-400">{coreCount} cố định</span>
-            {' · '}
+            <span className="text-gray-600"> · </span>
             <span className="text-amber-400">{guestCount} giao lưu</span>
           </p>
         </div>
