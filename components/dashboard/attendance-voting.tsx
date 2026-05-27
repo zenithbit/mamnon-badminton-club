@@ -297,46 +297,46 @@ function SessionRow({
         }`}
       >
         {/* Main row */}
-        <div className="flex items-center gap-3 px-4 py-3">
-          {/* Date badge */}
-          <div
-            className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl shrink-0 text-center ${
-              isPast
-                ? 'bg-[#1f2844]/50 text-gray-500'
-                : isNext
-                ? 'bg-blue-600/20 text-blue-400'
-                : 'bg-[#1f2844]/30 text-gray-600'
-            }`}
-          >
-            <span className="text-[10px] font-semibold uppercase tracking-wide">T3</span>
-            <span className="text-sm font-bold leading-tight">{session.dayShort}</span>
-          </div>
-
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white">{session.label}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <Users size={12} className="text-gray-500 shrink-0" />
-              <span className="text-xs text-gray-400">
-                {isNext
-                  ? <>{totalMale} nam, {totalFemale} nữ đã đăng ký</>
-                  : <>{totalCount} người{isPast ? ' tham gia' : ' đã đăng ký'}</>
-                }
-              </span>
+        <div className="px-4 pt-3 pb-2">
+          <div className="flex items-center gap-3">
+            {/* Date badge */}
+            <div
+              className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl shrink-0 text-center ${
+                isPast
+                  ? 'bg-[#1f2844]/50 text-gray-500'
+                  : isNext
+                  ? 'bg-blue-600/20 text-blue-400'
+                  : 'bg-[#1f2844]/30 text-gray-600'
+              }`}
+            >
+              <span className="text-[10px] font-semibold uppercase tracking-wide">T3</span>
+              <span className="text-sm font-bold leading-tight">{session.dayShort}</span>
             </div>
-          </div>
 
-          {/* Avatar stack */}
-          {voters.length > 0 && (
-            <div className="hidden sm:block">
-              <AvatarStack voters={voters} />
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white">{session.label}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <Users size={12} className="text-gray-500 shrink-0" />
+                <span className="text-xs text-gray-400">
+                  {isNext
+                    ? <>{totalMale} nam, {totalFemale} nữ đã đăng ký</>
+                    : <>{totalCount} người{isPast ? ' tham gia' : ' đã đăng ký'}</>
+                  }
+                </span>
+              </div>
             </div>
-          )}
 
-          {/* Actions */}
-          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Avatar stack */}
+            {voters.length > 0 && (
+              <div className="hidden sm:block">
+                <AvatarStack voters={voters} />
+              </div>
+            )}
+
+            {/* sm+: action buttons */}
             {isNext && (
-              <>
+              <div className="hidden sm:flex items-center gap-1.5 shrink-0">
                 <button
                   onClick={() => setModalOpen(true)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
@@ -345,38 +345,50 @@ function SessionRow({
                       : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                 >
-                  {hasVoted ? (
-                    <>
-                      <Check size={12} />
-                      Đã đăng ký
-                    </>
-                  ) : (
-                    <>
-                      <UserCheck size={12} />
-                      Điểm danh
-                    </>
-                  )}
+                  {hasVoted ? <><Check size={12} />Đã đăng ký</> : <><UserCheck size={12} />Điểm danh</>}
                 </button>
                 <button
                   onClick={() => setFeeModalOpen(true)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-all"
                 >
-                  <Calculator size={12} />
-                  Tính tiền
+                  <Calculator size={12} />Tính tiền
                 </button>
-              </>
+              </div>
             )}
 
+            {/* Chevron */}
             {hasAny && (
               <button
                 onClick={() => setExpanded((v) => !v)}
-                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-colors"
+                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-colors shrink-0"
                 aria-label={expanded ? 'Thu gọn' : 'Xem danh sách'}
               >
                 {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
             )}
           </div>
+
+          {/* Mobile-only buttons row */}
+          {isNext && (
+            <div className="flex sm:hidden items-center gap-1.5 mt-2 pb-1">
+              <button
+                onClick={() => setModalOpen(true)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  hasVoted
+                    ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                {hasVoted ? <><Check size={12} />Đã đăng ký</> : <><UserCheck size={12} />Điểm danh</>}
+              </button>
+              <button
+                onClick={() => setFeeModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-all"
+              >
+                <Calculator size={12} />Tính tiền
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Expanded list */}
@@ -552,7 +564,11 @@ function SessionRow({
 
 export default function AttendanceVoting({ sessions, currentUser }: Props) {
   const nextSession = sessions.find((s) => !s.isPast)
-  const totalRegistered = nextSession?.voters.length ?? 0
+  const nextVoters = nextSession?.voters ?? []
+  const nextGuests = nextSession?.guests ?? []
+  const coreCount = nextVoters.filter((v) => v.isCoreMember).length
+  const guestCount = nextVoters.filter((v) => !v.isCoreMember).length + nextGuests.reduce((s, g) => s + g.count, 0)
+  const totalVotes = nextVoters.length + nextGuests.reduce((s, g) => s + g.count, 0)
 
   return (
     <section className="flex flex-col bg-[#161c2d] rounded-xl overflow-hidden lg:h-full">
@@ -571,8 +587,12 @@ export default function AttendanceVoting({ sessions, currentUser }: Props) {
         </div>
 
         <div className="text-right shrink-0">
-          <p className="text-xl font-bold text-white">{totalRegistered}</p>
-          <p className="text-[10px] text-gray-500">người đăng ký</p>
+          <p className="text-xl font-bold text-white">{totalVotes} vote</p>
+          <p className="text-[10px] text-gray-500 mt-0.5">
+            <span className="text-blue-400">{coreCount} cố định</span>
+            {' · '}
+            <span className="text-amber-400">{guestCount} giao lưu</span>
+          </p>
         </div>
       </div>
 

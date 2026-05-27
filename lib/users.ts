@@ -48,3 +48,7 @@ export async function getAllMembers(): Promise<StoredUser[]> {
     .from(users)
     .orderBy(users.createdAt)
 }
+
+export async function setCoreMember(id: string, value: boolean): Promise<void> {
+  await db.update(users).set({ isCoreMember: value }).where(eq(users.id, id))
+}

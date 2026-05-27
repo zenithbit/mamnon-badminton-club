@@ -22,7 +22,7 @@ export default async function MembersPage() {
       />
 
       <main className="flex-1 overflow-auto px-4 sm:px-6 py-5">
-        <MemberList members={members} currentUserId={session.userId} />
+        <MemberList members={members} currentUserId={session.userId} isAdmin={session.role === 'admin'} />
       </main>
     </>
   )

@@ -1,10 +1,15 @@
+'use client'
+
+import { useState, useTransition } from 'react'
 import Image from 'next/image'
 import { getInitials, getUserColor } from '@/lib/utils'
+import { toggleCoreMember } from '@/app/actions/members'
 import type { StoredUser } from '@/lib/users'
 
 interface Props {
   members: StoredUser[]
   currentUserId: string
+  isAdmin: boolean
 }
 
 function Avatar({ user }: { user: StoredUser }) {
@@ -64,7 +69,35 @@ function formatDate(dateStr: string | Date | null): string {
   })
 }
 
-export default function MemberList({ members, currentUserId }: Props) {
+function CoreMemberToggle({ memberId, initial }: { memberId: string; initial: boolean }) {
+  const [checked, setChecked] = useState(initial)
+  const [pending, startTransition] = useTransition()
+
+  function handleChange() {
+    const next = !checked
+    setChecked(next)
+    startTransition(() => toggleCoreMember(memberId, next))
+  }
+
+  return (
+    <button
+      onClick={handleChange}
+      disabled={pending}
+      aria-label={checked ? 'Tắt cố định' : 'Bật cố định'}
+      className={`relative inline-flex items-center h-5 w-9 rounded-full transition-colors duration-200 focus:outline-none ${
+        checked ? 'bg-blue-600' : 'bg-white/10'
+      } ${pending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+    >
+      <span
+        className={`inline-block w-3.5 h-3.5 rounded-full bg-white shadow transition-transform duration-200 ${
+          checked ? 'translate-x-4' : 'translate-x-0.5'
+        }`}
+      />
+    </button>
+  )
+}
+
+export default function MemberList({ members, currentUserId, isAdmin }: Props) {
   return (
     <section className="flex flex-col bg-[#161c2d] rounded-xl overflow-hidden">
       {/* Header */}
@@ -86,6 +119,9 @@ export default function MemberList({ members, currentUserId }: Props) {
               <th className="px-5 py-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Điện thoại</th>
               <th className="px-5 py-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Giới tính</th>
               <th className="px-5 py-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Vai trò</th>
+              {isAdmin && (
+                <th className="px-5 py-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Cố định</th>
+              )}
               <th className="px-5 py-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Ngày tham gia</th>
             </tr>
           </thead>
@@ -115,6 +151,11 @@ export default function MemberList({ members, currentUserId }: Props) {
                 <td className="px-5 py-3 text-gray-400">{member.phone ?? <span className="text-gray-600">—</span>}</td>
                 <td className="px-5 py-3"><GenderLabel gender={member.gender} /></td>
                 <td className="px-5 py-3"><RoleBadge role={member.role} /></td>
+                {isAdmin && (
+                  <td className="px-5 py-3">
+                    <CoreMemberToggle memberId={member.id} initial={member.isCoreMember} />
+                  </td>
+                )}
                 <td className="px-5 py-3 text-gray-400 text-xs">{formatDate(member.createdAt)}</td>
               </tr>
             ))}
